@@ -1,6 +1,7 @@
 import random
 from enum import Enum
 
+
 """
 Python script to ease damage rolls for the animate objects spell. Rolling 10d20 
 for hits was slightly annoying...then our paladin knocked the enemy prone and
@@ -56,32 +57,56 @@ def attack(advantage: Advantage, attackModifier: int, damageModifier: int, damag
         damage+=random.randint(1,damageDie)#xdy(1,damageDie)
     return (atkRoll[0],damage)
 
+def getAttacks(objectSize: str) -> set:
+    allAttacks = set()
+    print("Enter the number of "+objectSize+" attacks that have disadvantage, are normal, and have advantage each separated by commas or hit enter to skip.")
+    adv = str(input())
+    if(adv == ''):
+        return allAttacks
+    adv = adv.split(',')
+    allAttacks = allAttacks | getAttacksHelper(objectSize,Advantage.disadvantage, int(adv[0]))
+    allAttacks = allAttacks | getAttacksHelper(objectSize,Advantage.none, int(adv[1]))
+    allAttacks = allAttacks | getAttacksHelper(objectSize,Advantage.advantage, int(adv[2]))
+    return allAttacks
+
+def getAttacksHelper(objectSize: str, advantage: Advantage, attacks: int) -> set:
+    attackSizes = {"tiny" : tinyAttack, "small" : smallAttack, "medium" : mediumAttack, "large": largeAttack, "huge": hugeAttack}
+    allAttacks = set()
+    for x in range(0,attacks):
+        attack = (objectSize, attackSizes[objectSize](advantage))
+        allAttacks.add(attack)
+    return allAttacks
+
+
 def main():
-    totalAttacks = list()
-    print("How many tiny attacks?")
-    tinyAttacks = int(input())
-    for x in range(0,tinyAttacks):
-        attack = tinyAttack(Advantage.none)
-        totalAttacks.append(attack)
-        print(attack)
-    
-    #small attacks
-    print("How many small attacks?")
-    smallAttacks = int(input())
-    for x in range(0,smallAttacks):
-        attack = smallAttack(Advantage.none)
-        totalAttacks.append(attack)
-        print(attack)
+    totalAttacks = set()
+    totalAttacks = totalAttacks | getAttacks("tiny")
+    totalAttacks = totalAttacks | getAttacks("small")
+    totalAttacks = totalAttacks | getAttacks("medium")
+    totalAttacks = totalAttacks | getAttacks("large")
+    totalAttacks = totalAttacks | getAttacks("huge")
+
+    #see how many hit and how much damage was dealt
     print("What is the target AC?")
     targetAC = int(input())
     totalHits = 0
     totalDamage = 0
     for x in totalAttacks:
-        if(x[0] >= targetAC):
+        if(x[1][0] >= targetAC):
             totalHits+=1
-            totalDamage+=x[1]
+            totalDamage+=x[1][1]
     print("Total Hits:\t",totalHits)
     print("Total Damage:\t",totalDamage)
+
+    yes = set(["y","yes"])
+    #no = set("n","no")
+    print("Would you like to see how each object rolled?")
+    transparency = str(input())
+    if(transparency.lower() in yes):
+        print("\nFormat:\t(size, (attack roll, damage roll))\n")
+        for x in totalAttacks:
+            print(x)
+
 
 if __name__ == "__main__":
     main()
