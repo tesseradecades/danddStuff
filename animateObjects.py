@@ -59,7 +59,7 @@ def attack(advantage: Advantage, attackModifier: int, damageModifier: int, damag
 
 def getAttacks(objectSize: str) -> set:
     allAttacks = set()
-    print("Enter the number of "+objectSize+" attacks that have disadvantage, are normal, and have advantage each separated by commas or hit enter to skip.")
+    print("Enter the number of "+objectSize+" attacks or hit enter to skip.\nFormat: disadv,none,adv")
     adv = str(input())
     if(adv == ''):
         return allAttacks
@@ -80,26 +80,31 @@ def getAttacksHelper(objectSize: str, advantage: Advantage, attacks: int) -> set
 
 def main():
     totalAttacks = set()
+    yes = set(["y","yes"])
+    print("Are all of the objects tiny?")
+    tiny = str(input())
     totalAttacks = totalAttacks | getAttacks("tiny")
-    totalAttacks = totalAttacks | getAttacks("small")
-    totalAttacks = totalAttacks | getAttacks("medium")
-    totalAttacks = totalAttacks | getAttacks("large")
-    totalAttacks = totalAttacks | getAttacks("huge")
+    if(tiny.lower() not in yes):
+        totalAttacks = totalAttacks | getAttacks("small")
+        totalAttacks = totalAttacks | getAttacks("medium")
+        totalAttacks = totalAttacks | getAttacks("large")
+        totalAttacks = totalAttacks | getAttacks("huge")
 
     #see how many hit and how much damage was dealt
-    print("What is the target AC?")
-    targetAC = int(input())
-    totalHits = 0
-    totalDamage = 0
-    for x in totalAttacks:
-        if(x[1][0] >= targetAC):
-            totalHits+=1
-            totalDamage+=x[1][1]
-    print("Total Hits:\t",totalHits)
-    print("Total Damage:\t",totalDamage)
+    print("Enter the target AC to see the number of hits and total damage dealt, or hit enter to see how each object rolled.")
+    targetAC = input()
+    if(targetAC != ''):
+        targetAC = int(targetAC)
+        totalHits = 0
+        totalDamage = 0
+        for x in totalAttacks:
+            if(x[1][0] >= targetAC):
+                totalHits+=1
+                totalDamage+=x[1][1]
+        print("Total Hits:\t",totalHits)
+        print("Total Damage:\t",totalDamage)
 
-    yes = set(["y","yes"])
-    #no = set("n","no")
+    
     print("Would you like to see how each object rolled?")
     transparency = str(input())
     if(transparency.lower() in yes):
