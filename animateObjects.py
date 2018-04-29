@@ -25,7 +25,7 @@ Rolls a number of dice with a modifier
 def xdyplus(x: int, y: int, modifier: int) -> list:
     rolls = list()
     for i in range(0,x):
-        rolls.append(random.randint(1,y)+modifier)
+        rolls.append(random.SystemRandom().randint(1,y)+modifier)
     return rolls
 
 """
@@ -72,7 +72,7 @@ def attack(advantage: Advantage, attackModifier: int, damageModifier: int, damag
     for dmg in xdyplus(damageRolls,damageDie,damageModifier):
         damage+=dmg
     if(atkRoll[1]):
-        damage+=random.randint(1,damageDie)
+        damage+=random.SystemRandom().randint(1,damageDie)
     return (atkRoll[0],damage)
 
 """
@@ -85,9 +85,12 @@ def getAttacks(objectSize: str) -> set:
     if(adv == ''):
         return allAttacks
     adv = adv.split(',')
-    allAttacks = allAttacks | getAttacksHelper(objectSize,Advantage.disadvantage, int(adv[0]))
-    allAttacks = allAttacks | getAttacksHelper(objectSize,Advantage.none, int(adv[1]))
-    allAttacks = allAttacks | getAttacksHelper(objectSize,Advantage.advantage, int(adv[2]))
+    if(len(adv) > 0):
+        allAttacks = allAttacks | getAttacksHelper(objectSize,Advantage.disadvantage, int(adv[0]))
+    if(len(adv) > 1):
+        allAttacks = allAttacks | getAttacksHelper(objectSize,Advantage.none, int(adv[1]))
+    if(len(adv) > 2):
+        allAttacks = allAttacks | getAttacksHelper(objectSize,Advantage.advantage, int(adv[2]))
     return allAttacks
 
 """
